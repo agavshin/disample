@@ -2,7 +2,9 @@
 
 Needs to be refactored and completed
 
-#### To compile:
-Download and include to the project the libs from org.reflections
+#### To compile use libs:
+
+ - org.reflections
+ - com.h2database
 
 Any other notices

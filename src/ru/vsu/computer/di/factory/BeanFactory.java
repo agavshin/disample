@@ -3,6 +3,7 @@ package ru.vsu.computer.di.factory;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import java.util.Set;
 import ru.vsu.computer.di.annotation.Inject;
 import ru.vsu.computer.di.configuration.BeanConfiguration;
 import ru.vsu.computer.di.configuration.JavaBeanConfiguration;
+import ru.vsu.computer.di.configuration.processor.PostProcessor;
 import ru.vsu.computer.di.configurator.BeanConfigurator.BeanConfigurator;
 import ru.vsu.computer.di.configurator.BeanConfigurator.JavaBeanConfigurator;
 
@@ -59,27 +61,12 @@ public class BeanFactory {
 
     private <T> T initBean(Class<T> implClass) {
         try {
-            final T bean = implClass.getDeclaredConstructor().newInstance();
+            T bean = implClass.getDeclaredConstructor().newInstance();
 
-// TODO: 12.10.2021 extract the logic below to particular post processor
+            for (PostProcessor p : beanConfiguration.processors()) {
+                bean = p.process(bean, INSTANCE);
+            }
 
-            Arrays.stream(bean.getClass().getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(Inject.class))
-                .forEach(field -> {
-                    field.setAccessible(true);
-                    try {
-                        if (Collection.class.isAssignableFrom(field.getType())) {
-                            final ParameterizedType type = (ParameterizedType) field.getGenericType();
-                            final Type actualTypeArgument = type.getActualTypeArguments()[0];
-
-                            field.set(bean, INSTANCE.getBeans((Class) actualTypeArgument));
-                        } else {
-                            field.set(bean, INSTANCE.getBean(field.getType()));
-                        }
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("No access to field");
-                    }
-                });
             return bean;
         } catch (Exception e) {
             throw new RuntimeException("Exception while bean initialization");

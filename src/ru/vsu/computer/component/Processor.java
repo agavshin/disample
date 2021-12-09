@@ -7,7 +7,7 @@ import ru.vsu.computer.di.annotation.Injectable;
 public class Processor implements Diagnosable {
 
     @Override
-    public void diagnose() {
-        System.out.println("Processor is working...");
+    public String diagnose() {
+        return "Processor is working...";
     }
 }

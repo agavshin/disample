@@ -1,33 +1,32 @@
 package ru.vsu.db.persistence;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Logger;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import ru.vsu.computer.di.annotation.Injectable;
 
+@Injectable
 public class ConnectionManager {
 
-    private final static String DB_URL = "jdbc:h2:../catalog";
-    private final static String DB_USER = "sa";
-    private final static String DB_PASS = "";
+    private final Logger logger = Logger.getLogger(ConnectionManager.class.getCanonicalName());
 
-    private static ConnectionManager instance;
+    private DataSource dataSource;
 
-    private ConnectionManager() {
+    public ConnectionManager() {
         try {
-            Class.forName("org.h2.Driver");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Unable to find db driver: " + e.getMessage());
+            Context initContext = new InitialContext();
+            Context envContext = (Context) initContext.lookup("java:comp/env");
+            dataSource = (DataSource) envContext.lookup("jdbc/catalog");
+        } catch (NamingException e) {
+            logger.info("Error while JNDI name lookup. [" + e.getMessage() + "]");
         }
-    }
-
-    public static ConnectionManager getInstance() {
-        if (instance == null) {
-            instance = new ConnectionManager();
-        }
-        return instance;
     }
 
     public Connection getConnection() throws SQLException  {
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+        return dataSource.getConnection();
     }
 }

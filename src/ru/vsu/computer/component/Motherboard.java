@@ -9,7 +9,7 @@ public class Motherboard implements Diagnosable {
 
     @Override
     @Log
-    public void diagnose() {
-        System.out.println("Motherboard is working...");
+    public String diagnose() {
+        return "Motherboard is working...";
     }
 }

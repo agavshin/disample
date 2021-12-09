@@ -9,9 +9,12 @@ public class Computer {
     @Inject
     private Diagnostician diagnostician;
 
-    public void start() {
-        diagnostician.diagnose();
+    public String start() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(diagnostician.diagnose());
 
-        System.out.println("\n -- All components are working... --");
+        builder.append("\n -- All components are working... --");
+
+        return builder.toString();
     }
 }

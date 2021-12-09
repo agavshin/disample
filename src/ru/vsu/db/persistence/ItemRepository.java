@@ -7,11 +7,15 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import ru.vsu.computer.di.annotation.Inject;
+import ru.vsu.computer.di.annotation.Injectable;
 import ru.vsu.db.entity.Item;
 
+@Injectable
 public class ItemRepository implements Repository<Item, Long> {
 
-    private ConnectionManager connectionManager = ConnectionManager.getInstance();
+    @Inject
+    private ConnectionManager connectionManager;
 
     private Extractor<Item> extractor = rs -> {
         List<Item> items = new ArrayList<>();
